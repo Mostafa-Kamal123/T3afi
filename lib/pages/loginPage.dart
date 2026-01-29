@@ -5,6 +5,8 @@ import 'package:t3afy/constants.dart';
 import 'package:t3afy/main.dart';
 import 'package:t3afy/pages/forgotPassword1.dart';
 import 'package:t3afy/pages/homePage.dart';
+import 'package:t3afy/pages/DoctorProfile.dart';
+import 'package:t3afy/pages/DoctorHome.dart';
 import 'package:t3afy/pages/registerPage.dart';
 import 'package:t3afy/widgets/customButtonWidget.dart';
 import 'package:t3afy/widgets/customTextformfield.dart';
@@ -39,6 +41,7 @@ GlobalKey <FormState> formKey=GlobalKey();
                 SizedBox(height: 30,),
                 Align(alignment: Alignment.centerLeft, child: Text("Login",style: TextStyle(color: Colors.black,fontSize: 24,fontWeight: FontWeight.bold),)),
                 SizedBox(height: 10,),
+               
                 CustomTextFormFeild(hintText: "Email",onChanged: (data) {
                   email=data;
                 },),
@@ -57,7 +60,7 @@ GlobalKey <FormState> formKey=GlobalKey();
                 ),
                 SizedBox(height: 50,),
                 CustomButtonWidget(text: "Login",onTap: () {
-                  Navigator.pushNamed(context, HOmeScreen.id);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>Homepage()));
                   },),
                 SizedBox(height: 30,),
                 Text("OR Login with"),
