@@ -1,102 +1,232 @@
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:t3afy/constants.dart';
 import 'package:t3afy/main.dart';
-import 'package:t3afy/pages/forgotPassword1.dart';
+
 import 'package:t3afy/pages/homePage.dart';
 import 'package:t3afy/pages/DoctorProfile.dart';
 import 'package:t3afy/pages/DoctorHome.dart';
 import 'package:t3afy/pages/registerPage.dart';
+import 'package:t3afy/pages/register_choice.dart';
 import 'package:t3afy/widgets/customButtonWidget.dart';
 import 'package:t3afy/widgets/customTextformfield.dart';
 import 'package:t3afy/widgets/platformButton.dart';
 
-class Loginpage extends StatelessWidget {
-  Loginpage({super.key});
-  static String id='loginPage';
-String?email;
+class Loginpage extends StatefulWidget {
+  const Loginpage({super.key});
+  static String id = 'loginPage';
 
-String? pass;
+  @override
+  State<Loginpage> createState() => _LoginpageState();
+}
 
-bool isLoading=false;
+class _LoginpageState extends State<Loginpage> {
+  String? email;
+  String? pass;
+  bool isLoading = false;
+  final GlobalKey<FormState> formKey = GlobalKey();
+Future<void> _resetPassword() async {
+  try {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email!.trim());
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Password reset email sent! Check your inbox.'),
+      ),
+    );
+  } on FirebaseAuthException catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(e.message ?? 'Error sending reset email')),
+    );
+  }
+}
 
-GlobalKey <FormState> formKey=GlobalKey();
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       inAsyncCall: isLoading,
       child: Scaffold(
         backgroundColor: KPrimaryColor,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                
-                Image.asset(KLogo,
-                width: 300,
-                ),
-                SizedBox(height: 30,),
-                Align(alignment: Alignment.centerLeft, child: Text("Login",style: TextStyle(color: Colors.black,fontSize: 24,fontWeight: FontWeight.bold),)),
-                SizedBox(height: 10,),
-               
-                CustomTextFormFeild(hintText: "Email",onChanged: (data) {
-                  email=data;
-                },),
-                SizedBox(height: 10,),
-                CustomTextFormFeild(hintText: "Password",onChanged: (data) {
-                  pass=data;
-                },),
-                SizedBox(height: 10,),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(onPressed: (){
-                    Navigator.pushNamed(context, ForgotPassword1.id);
-                  }, child: Text("Forgot Passowrd?",style: TextStyle(color: KButtonsColor,fontSize: 16,
-                  
-                  ),)),
-                ),
-                SizedBox(height: 50,),
-                CustomButtonWidget(text: "Login",onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) =>Homepage()));
-                  },),
-                SizedBox(height: 30,),
-                Text("OR Login with"),
-                    SizedBox(height: 20,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        
-                        PlatformButton(
-                          image: "assets/Images/facebook.png",
-                          onTap: (){}),
-                          PlatformButton(onTap: (){}, image: "assets/Images/google.png")
-                      ],
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            final isNarrowScreen = screenWidth < 600;
+
+            final horizontalPadding = isNarrowScreen ? 24.0 : 48.0;
+            final logoWidth = isNarrowScreen ? 240.0 : 300.0;
+            final formMaxWidth = isNarrowScreen ? double.infinity : 460.0;
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: formMaxWidth),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  child: Form(
+                    key: formKey,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 60),
+
+                          Image.asset(
+                            KLogo,
+                            width: logoWidth,
+                          ),
+
+                          const SizedBox(height: 48),
+
+                          Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: isNarrowScreen ? 28 : 36,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          CustomTextFormFeild(
+                            hintText: "Email",
+                            keyboardType: TextInputType.emailAddress,
+                            onChanged: (data) => email = data,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          CustomTextFormFeild(
+                            hintText: "Password",
+                            obscureText: true,
+                            onChanged: (data) => pass = data,
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+  onPressed: () {
+    if (email == null || email!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email first')),
+      );
+      return;
+    }
+    _resetPassword();
+  },
+  child: const Text('Forgot Password?'),
+)
+
+
+                          ),
+
+                          const SizedBox(height: 40),
+
+                          CustomButtonWidget(
+                            text: "Login",
+                            onTap: () async {
+try {
+  final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+   email: email!.trim(),      // ← القيمة اللي المستخدم كتبها
+        password: pass!.trim(),
+  );
+  if(credential.user!.emailVerified)
+  { Navigator.push(context,MaterialPageRoute(builder: (context) => const Homepage()), );}
+   else {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      content: const Text('verify email.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
+} on FirebaseAuthException catch (e) {
+  if (e.code == 'user-not-found') {
+    print('No user found for that email.');
+  } else if (e.code == 'wrong-password') {
+    print('Wrong password provided for that user.');
+  }
+}
+                              // هنا ممكن تضيف التحقق من الفورم لاحقًا
+                              // if (formKey.currentState!.validate()) { ... }
+                             
+                            },
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          Center(
+                            child: Text(
+                              "OR Login with",
+                              style: TextStyle(
+                                fontSize: isNarrowScreen ? 14 : 16,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              PlatformButton(
+                                image: "assets/Images/facebook.png",
+                                onTap: () {},
+                              ),
+                              const SizedBox(width: 40),
+                              PlatformButton(
+                                image: "assets/Images/google.png",
+                                onTap: () {},
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Don't have an account?",
+                                style: TextStyle(fontSize: isNarrowScreen ? 14 : 16),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const RegisterChoice()),
+                                  );
+                                },
+                                child: Text(
+                                  " Sign Up",
+                                  style: TextStyle(
+                                    color: KButtonsColor,
+                                    fontSize: isNarrowScreen ? 14 : 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 60),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 20,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Don't have an account?"),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>(Registerpage())));
-                      },
-                      child: Text(" Sign Up",style: TextStyle(color: KButtonsColor),)),
-                  ],
-                )
-              ],
-            ),
-          ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
-
-  // Future<void> LoginMethod() async {
-  //   UserCredential user=await FirebaseAuth.instance.
-  //   signInWithEmailAndPassword(email: email!, password: pass!);
-  // }
 }

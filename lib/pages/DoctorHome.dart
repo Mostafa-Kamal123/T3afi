@@ -1,11 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
+import 'package:t3afy/firebase_options.dart';
 import 'package:t3afy/pages/DoctorProfile.dart';
 import 'package:t3afy/widgets/customCardWidget.dart';
 import 'package:t3afy/widgets/newsSection.dart';
+import 'package:t3afy/data_generator.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-class Doctorhome extends StatelessWidget {
+
+class Doctorhome extends StatefulWidget {
   const Doctorhome({super.key});
+
+  @override
+  State<Doctorhome> createState() => _DoctorhomeState();
+}
+
+class _DoctorhomeState extends State<Doctorhome> {
+  late final DataGenerator dataGenerator;
+  bool firebaseReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initFirebase();
+  }
+
+  Future<void> initFirebase() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    dataGenerator = DataGenerator();
+    setState(() {
+      firebaseReady = true; // دلوقتي Firebase جاهز
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,36 +56,27 @@ class Doctorhome extends StatelessWidget {
             ),
             ListTile(
               title: Text("Logout"),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
             ),
             ListTile(
               title: Text("Settings"),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
             ),
           ],
         ),
       ),
       body: Stack(
         children: [
-          // الخلفية
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    KTextFieldColor,
-                    KPrimaryColor,
-                  ]),
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [KTextFieldColor, KPrimaryColor],
+              ),
             ),
           ),
-
-          // AppBar عالي
           Container(
             height: 180,
             padding: EdgeInsets.only(top: 20, left: 16, right: 16),
@@ -68,16 +87,13 @@ class Doctorhome extends StatelessWidget {
                 Row(
                   children: [
                     Builder(
-                      builder: (context) {
-                        return IconButton(
-                          icon: Icon(Icons.menu, color: Colors.black),
-                          onPressed: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                        );
-                      },
+                      builder: (context) => IconButton(
+                        icon: Icon(Icons.menu, color: Colors.black),
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                      ),
                     ),
                     SizedBox(width: 8),
+               
                     Text(
                       "Doctor",
                       style: TextStyle(
@@ -91,34 +107,31 @@ class Doctorhome extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: Icon(Icons.chat, color: Colors.black),
-                      onPressed: () {
-                        print("Chat clicked");
-                      },
+                      onPressed: () => print("Chat clicked"),
                     ),
                     IconButton(
                       icon: Icon(Icons.account_circle_rounded,
                           color: Colors.black),
-                      onPressed: () {
-                           Navigator.push(context, MaterialPageRoute(builder: (context) => Doctorprofile()));
-                      },
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Doctorprofile(),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-
-          // الكارت فوق AppBar
           Positioned(
-            top:135,
+            top: 135,
             left: 16,
             right: 16,
             child: Customcardwidget(
               width: double.infinity,
               height: 180,
-              ontap: () {
-                print("Card clicked!");
-              },
+              ontap: () => print("Card clicked!"),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -131,36 +144,28 @@ class Doctorhome extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20),
-             
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white24,
-                        ),
-                        padding: EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.people,
-                          color: Colors.black,
-                          size: 35,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Check your Patients",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.black,
-                        ),
-                      ),
-                    
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white24,
+                    ),
+                    padding: EdgeInsets.all(8),
+                    child: Icon(Icons.people, color: Colors.black, size: 35),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "Check your Patients",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-
-          // باقي الـ body تحت الكارت
           Padding(
             padding: EdgeInsets.only(top: 300),
             child: ListView(
@@ -185,25 +190,15 @@ class Doctorhome extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-  currentIndex: 0, // افتراضي على Home
-  selectedItemColor:  KButtonsColor,
-  unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
-  items: [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Home',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.group),
-      label: 'Community',
-    ),
-  ],
-  onTap: (index) {
-    // مؤقتًا ممكن تخلي print أو Navigator لصفحة جديدة
-    print("Tapped index: $index");
-  },
-),
-
+        currentIndex: 0,
+        selectedItemColor: KButtonsColor,
+        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Community'),
+        ],
+        onTap: (index) => print("Tapped index: $index"),
+      ),
     );
   }
 }

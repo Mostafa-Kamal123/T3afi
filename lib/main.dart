@@ -1,35 +1,52 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
+import 'package:t3afy/firebase_options.dart';
 import 'package:t3afy/pages/AIcheckPage.dart';
+import 'package:t3afy/pages/DoctorHome.dart';
 import 'package:t3afy/pages/dailyCheckInPage.dart';
-import 'package:t3afy/pages/forgotPassword1.dart';
-import 'package:t3afy/pages/forgotPassword2.dart';
+
 import 'package:t3afy/pages/homePage.dart';
 import 'package:t3afy/pages/loginPage.dart';
 import 'package:t3afy/pages/onboardingScreens.dart';
 import 'package:t3afy/pages/registerPage.dart';
 
-void main(){
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();   // ← لازم قبل أي حاجة
+
+  await Firebase.initializeApp(                // ← await هنا مهم جدًا
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
+void initState(){
+ FirebaseAuth.instance
+  .authStateChanges()
+  .listen((User? user) {
+    if (user == null) {
+      print('=======================User is currently signed out!');
+    } else {
+      print('=================================User is signed in!');
+    }
+  });
+}
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
         Loginpage.id:(context)=>Loginpage(),
         Registerpage.id:(context)=>Registerpage(),
-        ForgotPassword1.id:(context)=>ForgotPassword1(),
-        ForgotPassword2.id:(context)=>ForgotPassword2(),
+
         Homepage.id:(context)=>Homepage(),
         HOmeScreen.id:(context)=>HOmeScreen(),
         Dailycheckinpage.id:(context)=>Dailycheckinpage(),
         Aicheckpage.id:(context)=>Aicheckpage(),
       },
       debugShowCheckedModeBanner: false,
-      home: Onboardingscreens(),
+      home:(FirebaseAuth.instance.currentUser!=null && FirebaseAuth.instance.currentUser!.emailVerified )? HOmeScreen() : Loginpage(),
     );
   }
 }

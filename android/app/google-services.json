@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1036090460961",
+    "project_id": "t3afiii",
+    "storage_bucket": "t3afiii.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036090460961:android:318cfab8caef4d58364c60",
+        "android_client_info": {
+          "package_name": "com.example.t3afy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwQf_mUjn3YSkkRWIX3GNbRFcMvIK7dFM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
