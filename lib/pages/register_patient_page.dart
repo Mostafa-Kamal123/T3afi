@@ -108,9 +108,9 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 60),
+                
                 Image.asset(KLogo),
-                const SizedBox(height: 20),
+                
                 const Text(
                   "Recoveree Registration",
                   style: TextStyle(

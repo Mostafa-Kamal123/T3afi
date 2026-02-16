@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
 import 'package:t3afy/helpers/motivation_quotes.dart';
+import 'package:t3afy/pages/chat_page.dart';
 import 'package:t3afy/pages/dailyCheckInPage.dart';
 import 'package:t3afy/widgets/customCardWidget.dart';
 import 'package:t3afy/widgets/newsSection.dart';
@@ -139,7 +140,9 @@ static String id='home page';
                 ],
               )),
               Customcardwidget(
-                ontap: (){},
+                ontap: (){
+                  Navigator.pushNamed(context, ChatScreen.id);
+                },
                 child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
