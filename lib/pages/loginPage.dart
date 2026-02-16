@@ -70,14 +70,14 @@ Future<void> _resetPassword() async {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 60),
+                          
 
                           Image.asset(
                             KLogo,
                             width: logoWidth,
                           ),
 
-                          const SizedBox(height: 48),
+                          
 
                           Text(
                             "Login",
@@ -210,20 +210,20 @@ try{
 
                           const SizedBox(height: 20),
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              PlatformButton(
-                                image: "assets/Images/facebook.png",
-                                onTap: () {},
-                              ),
-                              const SizedBox(width: 40),
-                              PlatformButton(
-                                image: "assets/Images/google.png",
-                                onTap: () {},
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   children: [
+                          //     PlatformButton(
+                          //       image: "assets/Images/facebook.png",
+                          //       onTap: () {},
+                          //     ),
+                          //     const SizedBox(width: 40),
+                          //     PlatformButton(
+                          //       image: "assets/Images/google.png",
+                          //       onTap: () {},
+                          //     ),
+                          //   ],
+                          // ),
 
                           const SizedBox(height: 32),
 

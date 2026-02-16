@@ -5,6 +5,7 @@ import 'package:t3afy/constants.dart';
 import 'package:t3afy/firebase_options.dart';
 import 'package:t3afy/pages/AIcheckPage.dart';
 import 'package:t3afy/pages/DoctorHome.dart';
+import 'package:t3afy/pages/chat_page.dart';
 import 'package:t3afy/pages/dailyCheckInPage.dart';
 
 import 'package:t3afy/pages/homePage.dart';
@@ -44,9 +45,10 @@ void initState(){
         HOmeScreen.id:(context)=>HOmeScreen(),
         Dailycheckinpage.id:(context)=>Dailycheckinpage(),
         Aicheckpage.id:(context)=>Aicheckpage(),
+        ChatScreen.id:(context)=>ChatScreen(),
       },
       debugShowCheckedModeBanner: false,
-      home:(FirebaseAuth.instance.currentUser!=null && FirebaseAuth.instance.currentUser!.emailVerified )? HOmeScreen() : Loginpage(),
+      home: Loginpage(),
     );
   }
 }
