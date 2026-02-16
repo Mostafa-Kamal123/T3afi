@@ -9,6 +9,7 @@ import 'package:t3afy/pages/DoctorProfile.dart';
 import 'package:t3afy/pages/DoctorHome.dart';
 import 'package:t3afy/pages/registerPage.dart';
 import 'package:t3afy/pages/register_choice.dart';
+import 'package:t3afy/services/login_logic.dart';
 import 'package:t3afy/widgets/customButtonWidget.dart';
 import 'package:t3afy/widgets/customTextformfield.dart';
 import 'package:t3afy/widgets/platformButton.dart';
@@ -22,6 +23,7 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
+  final LoginLogic loginLogic=LoginLogic();
   String? email;
   String? pass;
   bool isLoading = false;
@@ -127,34 +129,68 @@ Future<void> _resetPassword() async {
                           CustomButtonWidget(
                             text: "Login",
                             onTap: () async {
-try {
-  final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-   email: email!.trim(),      // ← القيمة اللي المستخدم كتبها
-        password: pass!.trim(),
+                              print("Button pressed");
+
+if (email == null || pass == null) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Please fill all fields")),
   );
-  if(credential.user!.emailVerified)
-  { Navigator.push(context,MaterialPageRoute(builder: (context) => const Homepage()), );}
-   else {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      content: const Text('verify email.'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
-        ),
-      ],
-    ),
-  );
+  return;
 }
-} on FirebaseAuthException catch (e) {
-  if (e.code == 'user-not-found') {
-    print('No user found for that email.');
-  } else if (e.code == 'wrong-password') {
-    print('Wrong password provided for that user.');
+try{
+                              String?role=await loginLogic.login(
+                                email:email!,
+                                password: pass! );
+                                if(role=='patient'){
+                                  Navigator.push(context,
+                                  MaterialPageRoute(builder: (_)=> const Homepage()));
+                                }
+                                else if(role=='doctor'){
+                                  Navigator.push(context,MaterialPageRoute(builder: (_)=> const Doctorhome()));
+                                }
+                                else if(role=='not-verified'){
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Verify your email first")),
+                                  );
+                                }
+                                else{
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("user role not found")),
+                                  );
+                                }}
+                                catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Login failed: $e")),
+    );
   }
-}
+// try {
+//   final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+//    email: email!.trim(),      // ← القيمة اللي المستخدم كتبها
+//         password: pass!.trim(),
+//   );
+//   if(credential.user!.emailVerified)
+//   { Navigator.push(context,MaterialPageRoute(builder: (context) => const Homepage()), );}
+//    else {
+//   showDialog(
+//     context: context,
+//     builder: (context) => AlertDialog(
+//       content: const Text('verify email.'),
+//       actions: [
+//         TextButton(
+//           onPressed: () => Navigator.pop(context),
+//           child: const Text('OK'),
+//         ),
+//       ],
+//     ),
+//   );
+// }
+// } on FirebaseAuthException catch (e) {
+//   if (e.code == 'user-not-found') {
+//     print('No user found for that email.');
+//   } else if (e.code == 'wrong-password') {
+//     print('Wrong password provided for that user.');
+//   }
+// }
                               // هنا ممكن تضيف التحقق من الفورم لاحقًا
                               // if (formKey.currentState!.validate()) { ... }
                              

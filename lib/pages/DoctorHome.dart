@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
 import 'package:t3afy/firebase_options.dart';
 import 'package:t3afy/pages/DoctorProfile.dart';
+import 'package:t3afy/pages/DoctorPatientsPage.dart';
+import 'package:t3afy/services/login_logic.dart';
 import 'package:t3afy/widgets/customCardWidget.dart';
 import 'package:t3afy/widgets/newsSection.dart';
 import 'package:t3afy/data_generator.dart';
@@ -128,43 +130,56 @@ class _DoctorhomeState extends State<Doctorhome> {
             top: 135,
             left: 16,
             right: 16,
-            child: Customcardwidget(
-              width: double.infinity,
-              height: 180,
-              ontap: () => print("Card clicked!"),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "View Patients",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white24,
-                    ),
-                    padding: EdgeInsets.all(8),
-                    child: Icon(Icons.people, color: Colors.black, size: 35),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Check your Patients",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            child:Customcardwidget(
+  width: double.infinity,
+  height: 180,
+  ontap: () async {
+    PatientService patientService = PatientService();
+    final patients = await patientService.getPatientsForDoctor();
+
+    print("Number of patients fetched: ${patients.length}");
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Doctorpatientspage(patients: patients),
+      ),
+    );
+  },
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        "View Patients",
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+      SizedBox(height: 20),
+      Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white24,
+        ),
+        padding: EdgeInsets.all(8),
+        child: Icon(Icons.people, color: Colors.black, size: 35),
+      ),
+      SizedBox(height: 10),
+      Text(
+        "Check your Patients",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          fontStyle: FontStyle.italic,
+          color: Colors.black,
+        ),
+      ),
+    ],
+  ),
+)
+
           ),
           Padding(
             padding: EdgeInsets.only(top: 300),
