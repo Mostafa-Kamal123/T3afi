@@ -3,12 +3,14 @@ import 'package:t3afy/constants.dart';
 import 'package:t3afy/firebase_options.dart';
 import 'package:t3afy/pages/DoctorProfile.dart';
 import 'package:t3afy/pages/DoctorPatientsPage.dart';
+import 'package:t3afy/pages/patient_logic.dart';
 import 'package:t3afy/services/login_logic.dart';
 import 'package:t3afy/widgets/customCardWidget.dart';
 import 'package:t3afy/widgets/newsSection.dart';
 import 'package:t3afy/data_generator.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Doctorhome extends StatefulWidget {
   const Doctorhome({super.key});
@@ -95,14 +97,46 @@ class _DoctorhomeState extends State<Doctorhome> {
                       ),
                     ),
                     SizedBox(width: 8),
-               
-                    Text(
-                      "Doctor",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold),
-                    ),
+               StreamBuilder<DocumentSnapshot>(
+  stream: FirebaseAuth.instance.currentUser != null
+      ? FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .snapshots()
+      : null,
+  builder: (context, snapshot) {
+    String greeting = "Hello, Doctor";
+
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      greeting = "Loading...";
+    } else if (snapshot.hasData && snapshot.data!.exists) {
+      final data = snapshot.data!.data() as Map<String, dynamic>?;
+      
+      final name = data?['name'] as String? ?? data?['fullName'] as String? ?? '';
+      final role = data?['role'] as String? ?? data?['type'] as String? ?? '';
+
+      if (name.isNotEmpty) {
+        if (role.toLowerCase().contains('doctor') || role.toLowerCase() == 'دكتور') {
+          greeting = "Hello, Dr. ${name}";
+          // لو عايزة الاسم كله: "Hello, Dr. $name"
+        } else {
+          greeting = "Hello, $name";
+        }
+      }
+    } else if (snapshot.hasError) {
+      greeting = "Hello, Doctor";
+    }
+
+    return Text(
+      greeting,
+      style: const TextStyle(
+        color: Color.fromARGB(255, 0, 0, 0),
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  },
+),
                   ],
                 ),
                 Row(
@@ -142,7 +176,7 @@ class _DoctorhomeState extends State<Doctorhome> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => Doctorpatientspage(patients: patients),
+        builder: (_) => DoctorPatientsPage(),
       ),
     );
   },

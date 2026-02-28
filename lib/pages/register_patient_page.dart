@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
 import 'package:t3afy/services/auth_service.dart';
@@ -31,28 +29,27 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
 
   bool _isLoading = false;
 
-  int _generatePatientId() {
-    return 1000 + Random().nextInt(4000);
-  }
-
   Future<void> _registerPatient() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
+      // 🔹 التأكد من الدكتور
       final bool validDoctor =
           await _firestoreService.isDoctorValid(_doctorCustomId!);
 
       if (!validDoctor) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Doctor ID not found or not approved'),
+            content: Text('Doctor ID not found'),
           ),
         );
+        setState(() => _isLoading = false);
         return;
       }
 
+      // 🔹 تسجيل في Firebase Auth
       final result = await _authService.registerWithEmail(
         email: _email!,
         password: _password!,
@@ -64,8 +61,11 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
         await user.sendEmailVerification();
       }
 
-      _patientCustomId = _generatePatientId();
+      // 🔹 توليد ID بدون تكرار
+      _patientCustomId =
+          await _firestoreService.generatePatientId();
 
+      // 🔹 تخزين بيانات المريض
       await _firestoreService.createPatient(
         uid: user.uid,
         customId: _patientCustomId!,
@@ -78,17 +78,15 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-              'Registered successfully. Please verify your email.'),
+          content:
+              Text('Registered successfully. Please verify your email.'),
         ),
       );
 
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-        ),
+        SnackBar(content: Text('Error: $e')),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -105,22 +103,20 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                
                 Image.asset(KLogo),
-                
+                const SizedBox(height: 20),
                 const Text(
                   "Recoveree Registration",
                   style: TextStyle(
-                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 40),
+
                 CustomTextFormFeild(
                   hintText: 'Name',
                   onChanged: (v) => _name = v,
@@ -128,6 +124,7 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
                       v == null || v.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 20),
+
                 CustomTextFormFeild(
                   hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
@@ -136,6 +133,7 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
                       v == null || v.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 20),
+
                 CustomTextFormFeild(
                   hintText: 'Phone',
                   keyboardType: TextInputType.phone,
@@ -144,6 +142,7 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
                       v == null || v.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 20),
+
                 CustomTextFormFeild(
                   hintText: 'Password',
                   obscureText: true,
@@ -154,6 +153,7 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
                           : 'Min 6 chars',
                 ),
                 const SizedBox(height: 20),
+
                 CustomTextFormFeild(
                   hintText: 'Risk Level',
                   onChanged: (v) => _riskLevel = v,
@@ -161,6 +161,7 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
                       v == null || v.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 20),
+
                 CustomTextFormFeild(
                   hintText: 'Doctor ID',
                   keyboardType: TextInputType.number,
@@ -169,7 +170,8 @@ class _RegisterPatientPageState extends State<RegisterPatientPage> {
                   validator: (v) =>
                       v == null || v.isEmpty ? 'Required' : null,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 30),
+
                 CustomButtonWidget(
                   text: _isLoading ? 'Loading...' : 'Register',
                   onTap: _isLoading ? null : _registerPatient,
