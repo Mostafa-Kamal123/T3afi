@@ -1,53 +1,52 @@
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-
-class PatientService{
-  Future<List<Map<String,dynamic>>> getPatientsForDoctor() async{
-    final currentUser=FirebaseAuth.instance.currentUser;
-    if(currentUser==null)return[];
-
-    final  doctorDoc =await FirebaseFirestore.instance
-    .collection('users')
-
-    .doc(currentUser.uid)
-    .get();
-
-    final doctorCustomID=doctorDoc.data()?['customId'];
- if (doctorCustomID == null) return [];
-
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('role', isEqualTo: 'patient')
-       .where('doctorCustomId', isEqualTo: doctorCustomID)
-
-        .get();
-
-    return querySnapshot.docs.map((doc) => doc.data()).toList();
-}}
-class LoginLogic{
+import 'package:firebase_auth/firebase_auth.dart';
+class LoginLogic {
   Future<String?> login({
-    required String  email,
-    required String  password,
-  })async{
-    final credential=
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email.trim(),
-    
-     password: password.trim(),);
-     if(!credential.user!.emailVerified){
-      return "not-verified";
-     }
-     final uid=credential.user!.uid;
-     final userDoc=await FirebaseFirestore.instance
-     .collection('users')
-     .doc(uid)
-     .get();
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
 
-     if(!userDoc.exists || !userDoc.data()!.containsKey('role')){
-      return "no-role";
-   
-     }
-     return userDoc.data()?['role'];
+      final user = credential.user!;
+      final uid = user.uid;
+
+      // جلب بيانات اليوزر من Firestore
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+
+      if (!userDoc.exists || !userDoc.data()!.containsKey('role')) {
+        return "no-role";
+      }
+
+      final role = userDoc.data()?['role'] as String?;
+
+      // ── الاستثناء الخاص بالأدمن ──
+      if (role == "admin") {
+        // الأدمن يدخل حتى لو الإيميل مش verified
+        return "admin";
+      }
+
+      // باقي الرولز لازم يكونوا verified
+      if (!user.emailVerified) {
+        return "not-verified";
+      }
+
+      // إرجاع الرول العادي
+      return role;
+
+    } on FirebaseAuthException catch (e) {
+      print("Auth error: ${e.code} - ${e.message}");
+      return "auth-error";
+    } catch (e) {
+      print("Unexpected error: $e");
+      return "error";
+    }
   }
 }

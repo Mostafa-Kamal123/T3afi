@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:t3afy/constants.dart';
-import 'package:t3afy/main.dart';
-
+import 'package:t3afy/pages/admin_dashboard_page.dart';
+import 'package:t3afy/pages/admin_doctors_page.dart';
 import 'package:t3afy/pages/homePage.dart';
 import 'package:t3afy/pages/DoctorProfile.dart';
 import 'package:t3afy/pages/DoctorHome.dart';
@@ -23,25 +23,61 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
-  final LoginLogic loginLogic=LoginLogic();
+  final LoginLogic loginLogic = LoginLogic();
   String? email;
   String? pass;
   bool isLoading = false;
+  bool showResendVerification = false; // ← controls visibility of resend button
+
   final GlobalKey<FormState> formKey = GlobalKey();
-Future<void> _resetPassword() async {
-  try {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: email!.trim());
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Password reset email sent! Check your inbox.'),
-      ),
-    );
-  } on FirebaseAuthException catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.message ?? 'Error sending reset email')),
-    );
+
+  Future<void> _resetPassword() async {
+    if (email == null || email!.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email first')),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email!.trim());
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password reset email sent! Check your inbox.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Error sending reset email')),
+      );
+    }
   }
-}
+
+  Future<void> _resendVerificationEmail() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification email resent! Please check your inbox (and spam folder).'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 5),
+          ),
+        );
+        setState(() => showResendVerification = false);
+      }
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Failed to resend verification email')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,17 +106,16 @@ Future<void> _resetPassword() async {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          
-
                           Image.asset(
                             KLogo,
                             width: logoWidth,
                           ),
 
-                          
+                          const SizedBox(height: 24),
 
                           Text(
                             "Login",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: isNarrowScreen ? 28 : 36,
@@ -88,7 +123,7 @@ Future<void> _resetPassword() async {
                             ),
                           ),
 
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 40),
 
                           CustomTextFormFeild(
                             hintText: "Email",
@@ -109,91 +144,90 @@ Future<void> _resetPassword() async {
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-  onPressed: () {
-    if (email == null || email!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email first')),
-      );
-      return;
-    }
-    _resetPassword();
-  },
-  child: const Text('Forgot Password?'),
-)
-
-
+                              onPressed: _resetPassword,
+                              child: const Text(
+                                'Forgot Password?',
+                                style: TextStyle(color: KButtonsColor),
+                              ),
+                            ),
                           ),
 
-                          const SizedBox(height: 40),
+                          if (showResendVerification) ...[
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton.icon(
+                                onPressed: _resendVerificationEmail,
+                                icon: const Icon(Icons.email_outlined, size: 18),
+                                label: const Text(
+                                  'Resend verification email',
+                                  style: TextStyle(color: Colors.orangeAccent),
+                                ),
+                              ),
+                            ),
+                          ],
+
+                          const SizedBox(height: 32),
 
                           CustomButtonWidget(
                             text: "Login",
                             onTap: () async {
-                              print("Button pressed");
+                              if (email == null || email!.trim().isEmpty ||
+                                  pass == null || pass!.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Please fill all fields")),
+                                );
+                                return;
+                              }
 
-if (email == null || pass == null) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text("Please fill all fields")),
-  );
-  return;
-}
-try{
-                              String?role=await loginLogic.login(
-                                email:email!,
-                                password: pass! );
-                                if(role=='patient'){
-                                  Navigator.push(context,
-                                  MaterialPageRoute(builder: (_)=> const Homepage()));
-                                }
-                                else if(role=='doctor'){
-                                  Navigator.push(context,MaterialPageRoute(builder: (_)=> const Doctorhome()));
-                                }
-                                else if(role=='not-verified'){
+                              setState(() {
+                                isLoading = true;
+                                showResendVerification = false;
+                              });
+
+                              try {
+                                final role = await loginLogic.login(
+                                  email: email!.trim(),
+                                  password: pass!.trim(),
+                                );
+
+                                setState(() => isLoading = false);
+
+                                if (role == "not-verified") {
+                                  setState(() => showResendVerification = true);
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Verify your email first")),
+                                    const SnackBar(
+                                      content: Text("Please verify your email first. You can resend the link above."),
+                                      duration: Duration(seconds: 5),
+                                    ),
+                                  );
+                                } else if (role == "patient") {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const Homepage()),
+                                  );
+                                } else if (role == "doctor") {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const Doctorhome()),
+                                  );
+                                } else if (role == "admin") {
+                                  // ← Add your admin page here when ready
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const AdminDoctorsPage()),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Unknown role: $role")),
                                   );
                                 }
-                                else{
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("user role not found")),
-                                  );
-                                }}
-                                catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Login failed: $e")),
-    );
-  }
-// try {
-//   final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-//    email: email!.trim(),      // ← القيمة اللي المستخدم كتبها
-//         password: pass!.trim(),
-//   );
-//   if(credential.user!.emailVerified)
-//   { Navigator.push(context,MaterialPageRoute(builder: (context) => const Homepage()), );}
-//    else {
-//   showDialog(
-//     context: context,
-//     builder: (context) => AlertDialog(
-//       content: const Text('verify email.'),
-//       actions: [
-//         TextButton(
-//           onPressed: () => Navigator.pop(context),
-//           child: const Text('OK'),
-//         ),
-//       ],
-//     ),
-//   );
-// }
-// } on FirebaseAuthException catch (e) {
-//   if (e.code == 'user-not-found') {
-//     print('No user found for that email.');
-//   } else if (e.code == 'wrong-password') {
-//     print('Wrong password provided for that user.');
-//   }
-// }
-                              // هنا ممكن تضيف التحقق من الفورم لاحقًا
-                              // if (formKey.currentState!.validate()) { ... }
-                             
+                              } catch (e) {
+                                setState(() => isLoading = false);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Login failed: ${e.toString()}")),
+                                );
+                              }
                             },
                           ),
 
@@ -202,26 +236,19 @@ try{
                           Center(
                             child: Text(
                               "OR Login with",
-                              style: TextStyle(
-                                fontSize: isNarrowScreen ? 14 : 16,
-                              ),
+                              style: TextStyle(fontSize: isNarrowScreen ? 14 : 16),
                             ),
                           ),
 
                           const SizedBox(height: 20),
 
+                          // Uncomment if you want social login later
                           // Row(
                           //   mainAxisAlignment: MainAxisAlignment.center,
                           //   children: [
-                          //     PlatformButton(
-                          //       image: "assets/Images/facebook.png",
-                          //       onTap: () {},
-                          //     ),
+                          //     PlatformButton(image: "assets/Images/facebook.png", onTap: () {}),
                           //     const SizedBox(width: 40),
-                          //     PlatformButton(
-                          //       image: "assets/Images/google.png",
-                          //       onTap: () {},
-                          //     ),
+                          //     PlatformButton(image: "assets/Images/google.png", onTap: () {}),
                           //   ],
                           // ),
 
@@ -246,6 +273,7 @@ try{
                                   style: TextStyle(
                                     color: KButtonsColor,
                                     fontSize: isNarrowScreen ? 14 : 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),

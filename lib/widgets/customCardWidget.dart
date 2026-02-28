@@ -5,16 +5,16 @@ class Customcardwidget extends StatelessWidget {
   // إضافة width و height كـ متغيرات
   final Widget child;
   final VoidCallback ontap;
-  final double width;
-  final double height;
+final double? width;
+final double? height;
 
   // تعديل الكونستركتور عشان ياخدهم
   Customcardwidget({
     super.key,
     required this.child,
     required this.ontap,
-    this.width = 150,   // قيمة افتراضية
-    this.height = 130,  // قيمة افتراضية
+    this.width , // قيمة افتراضية
+    this.height ,  // قيمة افتراضية
   });
 
   @override
@@ -22,17 +22,18 @@ class Customcardwidget extends StatelessWidget {
     return GestureDetector(
       onTap: ontap,
       child: Container(
-        height: height, // استخدم القيمة اللي اتعدت
-        width: width,   // استخدم القيمة اللي اتعدت
+     height: height,
+width: 370,
+   // استخدم القيمة اللي اتعدت
         decoration: BoxDecoration(
           color: KPrimaryColor,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              spreadRadius: 2,
-              offset: Offset(0, 8),
+              blurRadius: 10,
+             
+              offset: Offset(0, 5),
             ),
           ],
         ),

@@ -5,10 +5,33 @@ class FirestoreService {
 
   /// =======================
   /// Create Doctor (PENDING)
-  /// =======================
+    /// Create Doctor
+    /// 
+    /// 
+    Future<int> getNextDoctorId() async {
+  final counterRef = FirebaseFirestore.instance.collection('counters').doc('doctors');
+
+  return await FirebaseFirestore.instance.runTransaction<int>((transaction) async {
+    final snapshot = await transaction.get(counterRef);
+
+    int newId;
+
+    if (!snapshot.exists) {
+      // أول مرة
+      newId = 1001; // أو 1 — حسب اللي عايزه
+      transaction.set(counterRef, {'lastId': newId});
+    } else {
+      final current = snapshot.data()?['lastId'] as int? ?? 1000;
+      newId = current + 1;
+      transaction.update(counterRef, {'lastId': newId});
+    }
+
+    return newId;
+  });
+}
   Future<void> createDoctor({
     required String uid,
-    required int customId, // 👈 ID من 100 لـ 500
+    required int customId,
     required String name,
     required String email,
     required String phone,
@@ -22,27 +45,23 @@ class FirestoreService {
       'email': email,
       'phone': phone,
       'role': 'doctor',
-
       'specialization': specialization,
       'yearsOfExperience': yearsOfExperience,
       'licenseNumber': licenseNumber,
-
-      'status': 'pending', // 👈 أهم سطر (مستني موافقة الادمن)
+      'status': 'pending', // لازم موافقة Admin
       'createdAt': Timestamp.now(),
     });
   }
 
-  /// =======================
   /// Create Patient
-  /// =======================
   Future<void> createPatient({
     required String uid,
-    required int customId, // 👈 ID من 1000 لـ 5000
+    required int customId,
     required String name,
     required String email,
     required String phone,
     required String riskLevel,
-    required int doctorCustomId, // 👈 مش UID
+    required int doctorCustomId,
   }) async {
     await _firestore.collection('users').doc(uid).set({
       'customId': customId,
@@ -50,10 +69,8 @@ class FirestoreService {
       'email': email,
       'phone': phone,
       'role': 'patient',
-
       'riskLevel': riskLevel,
       'doctorCustomId': doctorCustomId,
-
       'createdAt': Timestamp.now(),
     });
   }
@@ -92,4 +109,28 @@ class FirestoreService {
       'status': status,
     });
   }
+
+Future<int> generateDoctorId() async {
+  final ref = FirebaseFirestore.instance
+      .collection('counters')
+      .doc('doctorCounter');
+
+  return FirebaseFirestore.instance.runTransaction((t) async {
+    final snap = await t.get(ref);
+    int newId = snap['lastId'] + 1;
+    t.update(ref, {'lastId': newId});
+    return newId;
+  });
 }
+Future<int> generatePatientId() async {
+  final ref = FirebaseFirestore.instance
+      .collection('counters')
+      .doc('patientCounter');
+
+  return FirebaseFirestore.instance.runTransaction((t) async {
+    final snap = await t.get(ref);
+    int newId = snap['lastId'] + 1;
+    t.update(ref, {'lastId': newId});
+    return newId;
+  });
+}}

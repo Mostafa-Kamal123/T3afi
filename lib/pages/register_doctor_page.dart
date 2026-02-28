@@ -19,201 +19,254 @@ class _RegisterDoctorPageState extends State<RegisterDoctorPage> {
   final FirestoreService _firestoreService = FirestoreService();
   final _formKey = GlobalKey<FormState>();
 
-  String? _name, _email, _phone, _password, _specialization,license;
-  int? _years,generatedDoctorId;
+  String? _name, _email, _phone, _password, _specialization, _license;
+  int? _years, _generatedDoctorId;
 
   bool _isLoading = false;
 
   Future<void> _registerDoctor() async {
-  if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
-  setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
-  try {
-    // 1. Register account in Authentication
-    final result = await _authService.registerWithEmail(
-      email: _email!.trim(),
-      password: _password!.trim(),
-    );
+    try {
+      // الحصول على الـ ID الجديد أولاً
+      final int doctorCustomId = await _firestoreService.getNextDoctorId();
 
-    final user = result.user;
-    if (user == null) throw Exception('Failed to create user');
+      // 1. إنشاء حساب في Authentication
+      final result = await _authService.registerWithEmail(
+        email: _email!.trim(),
+        password: _password!.trim(),
+      );
 
-    // 2. Send verification email
-    if (!user.emailVerified) {
-      await user.sendEmailVerification();
+      final user = result.user;
+      if (user == null) throw Exception('فشل إنشاء الحساب');
 
-      // Show message to the user (dialog is better than SnackBar here)
-      if (!mounted) return;
+      // 2. إرسال إيميل التحقق + عرض رسالة للمستخدم
+      if (!user.emailVerified) {
+        try {
+          await user.sendEmailVerification();
 
-      await showDialog(
-        context: context,
-        barrierDismissible: false, // don't close except by button
-        builder: (context) => AlertDialog(
-          title: const Text("Registration Successful!"),
-          content: Text(
-            "A verification link has been sent to $_email\n\n"
-            "Please check your email (including Spam / Junk / Promotions folder)\n"
-            "and click the link to verify your account.",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // close dialog
-                Navigator.pop(context); // go back to previous page or login
-                // Or: Navigator.pushReplacementNamed(context, LoginPage.id);
-              },
-              child: const Text("OK", style: TextStyle(fontSize: 16)),
+          if (mounted) {
+            await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => AlertDialog(
+                title: const Text("Verify Your Email"),
+                content: const Text(
+                  "A verification link has been sent to your email address.\n\n"
+                  "Please check your inbox (and spam/junk folder) and click the link to verify your account.\n\n"
+                  "You will not be able to fully use the app until your email is verified.",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("OK"),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // للـ debug: اطبع في الـ console عشان تتأكد إن الطلب تم
+          debugPrint("Verification email requested for: ${_email!.trim()}");
+        } catch (e) {
+          debugPrint("Error sending verification email: $e");
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('فشل إرسال إيميل التحقق: $e'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      }
+
+      // 3. حفظ بيانات الدكتور في Firestore
+      await _firestoreService.createDoctor(
+        uid: user.uid,
+        customId: doctorCustomId,
+        licenseNumber: _license!.trim(),
+        name: _name!.trim(),
+        email: _email!.trim(),
+        phone: _phone!.trim(),
+        specialization: _specialization!.trim(),
+        yearsOfExperience: _years ?? 0,
+      );
+
+      // رسالة نجاح
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'تم إنشاء حساب الدكتور بنجاح!\n'
+              'رقم الدكتور: $doctorCustomId\n'
+              'يرجى التحقق من الإيميل للمتابعة.',
             ),
-          ],
-        ),
-      );
-    }
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 6),
+          ),
+        );
 
-    // 3. Save doctor data in Firestore
-    await _firestoreService.createDoctor(
-      uid: user.uid,
-      customId: generatedDoctorId?? 0,
-        licenseNumber: license!.trim(),
-      name: _name!.trim(),
-      email: _email!.trim(),
-      phone: _phone!.trim(),
-      specialization: _specialization!.trim(),
-      yearsOfExperience: _years ?? 0,
-    );
-
-    // Optional success message after dialog
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Doctor account created successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
-  } on FirebaseAuthException catch (e) {
-    String msg = 'An error occurred';
-
-    switch (e.code) {
-      case 'weak-password':
-        msg = 'The password is too weak';
-        break;
-      case 'email-already-in-use':
-        msg = 'The email is already in use';
-        break;
-      case 'invalid-email':
-        msg = 'The email is invalid';
-        break;
-      default:
-        msg = e.message ?? 'Unexpected error';
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.red),
-      );
-    }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-      );
-    }
-  } finally {
-    if (mounted) {
-      setState(() => _isLoading = false);
+        // اختياري: Navigator.pop(context); أو توجيه لصفحة أخرى
+      }
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'email-already-in-use':
+          message = 'الإيميل مستخدم من قبل.';
+          break;
+        case 'weak-password':
+          message = 'كلمة المرور ضعيفة جدًا.';
+          break;
+        case 'invalid-email':
+          message = 'صيغة الإيميل غير صحيحة.';
+          break;
+        default:
+          message = e.message ?? 'خطأ في المصادقة';
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: 60),
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 40,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 40),
 
-                          Image.asset(
-                            KLogo,
-                            // width: logoWidth,
+                    Image.asset(
+                      KLogo,
+                      // width: 150,   ← لو عايز تحدد عرض اللوجو
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    const Text(
+                      "Doctor Registration",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    CustomTextFormFeild(
+                      hintText: 'Full Name',
+                      onChanged: (v) => _name = v,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'مطلوب' : null,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    CustomTextFormFeild(
+                      hintText: 'Email',
+                      keyboardType: TextInputType.emailAddress,
+                      onChanged: (v) => _email = v,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'مطلوب' : null,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    CustomTextFormFeild(
+                      hintText: 'Phone Number',
+                      keyboardType: TextInputType.phone,
+                      onChanged: (v) => _phone = v,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'مطلوب' : null,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    CustomTextFormFeild(
+                      hintText: 'Password',
+                      obscureText: true,
+                      onChanged: (v) => _password = v,
+                      validator: (v) => v != null && v.length >= 6
+                          ? null
+                          : 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    CustomTextFormFeild(
+                      hintText: 'Specialization',
+                      onChanged: (v) => _specialization = v,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'مطلوب' : null,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    CustomTextFormFeild(
+                      hintText: 'Years of Experience',
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) => _years = int.tryParse(v ?? ''),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'مطلوب';
+                        if (int.tryParse(v) == null) return 'أدخل رقم صحيح';
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    CustomTextFormFeild(
+                      hintText: "Medical License Number",
+                      onChanged: (value) => _license = value,
+                      validator: (value) => value == null || value.trim().isEmpty
+                          ? 'رقم الترخيص مطلوب'
+                          : null,
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : CustomButtonWidget(
+                            text: 'Register',
+                            onTap: _registerDoctor,
                           ),
 
-                          const SizedBox(height: 48),
-
-                          Text(
-                            "Doctor Registeration",
-                            style: TextStyle(
-                              color: Colors.black,
-                              // fontSize: isNarrowScreen ? 28 : 36,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          const SizedBox(height: 32),
-                CustomTextFormFeild(
-                  hintText: 'Name',
-                  onChanged: (v) => _name = v,
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Required' : null,
+                    const SizedBox(height: 60),
+                  ],
                 ),
-                   SizedBox(height: 20,),
-                CustomTextFormFeild(
-                  hintText: 'Email',
-                  onChanged: (v) => _email = v,
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Required' : null,
-                ),
-                SizedBox(height: 20,),
-                CustomTextFormFeild(
-                  hintText: 'Phone',
-                  onChanged: (v) => _phone = v,
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Required' : null,
-                ),
-                SizedBox(height: 20,),
-                CustomTextFormFeild(
-                  hintText: 'Password',
-                  onChanged: (v) => _password = v,
-                  obscureText: true,
-                  validator: (v) =>
-                      v != null && v.length >= 6 ? null : 'Min 6 chars',
-                ),
-                SizedBox(height: 20,),
-                CustomTextFormFeild(
-                  hintText: 'Specialization',
-                  onChanged: (v) => _specialization = v,
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Required' : null,
-                ),
-                SizedBox(height: 20,),
-                CustomTextFormFeild(
-                  hintText: 'Years of Experience',
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) => _years = int.tryParse(v),
-                  validator: (v) =>
-                      v == null || int.tryParse(v) == null ? 'Required' : null,
-                ),
-                SizedBox(height: 20,),
-                CustomTextFormFeild(
-  hintText: "Medical License Number",
-  onChanged: (value) => license = value,
-  validator: (value) =>
-      value == null || value.isEmpty ? 'License number is required' : null,
-),
-
-                const SizedBox(height: 24),
-                CustomButtonWidget(
-                  text: 'Register',
-                  onTap: _registerDoctor,
-                ),
-              ],
+              ),
             ),
           ),
         ),
