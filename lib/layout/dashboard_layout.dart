@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
 import 'package:t3afy/pages/admin_doctors_page.dart';
+import 'package:t3afy/pages/communityScreen.dart';
 import 'sidebar.dart';
 import 'dashboard_appbar.dart';
 
@@ -15,18 +17,21 @@ class DashboardLayout extends StatefulWidget {
 class _DashboardLayoutState extends State<DashboardLayout> {
 
   int selectedIndex = 0;
-
-  final pages = [
+final currentUser = FirebaseAuth.instance.currentUser;
+  List<StatefulWidget> get pages => [
     DashboardHome(),
     
     AdminDoctorsPage(),
+      CommunityScreen(currentUserId: currentUser?.uid ?? ""),
   ];
 
-  void changePage(int index){
+void changePage(int index){
+  if(index >= 0 && index < pages.length){ // <-- مهم
     setState(() {
       selectedIndex = index;
     });
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +98,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
             child: Column(
               children: [
 
-                DashboardAppBar(),
+                // DashboardAppBar(),
 
                 Expanded(
                   child: pages[selectedIndex],
