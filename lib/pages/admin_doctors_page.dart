@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
+import 'package:t3afy/pages/admin_dashboard_page.dart';
 import 'doctor_card.dart';
 import 'doctors_service.dart';
 import 'package:t3afy/services/patients_management.dart'; // لو عايزة تستخدمي نفس dialog logic مع تعديل
@@ -45,8 +46,13 @@ class _AdminDoctorsPageState extends State<AdminDoctorsPage> {
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded),
                   color: Colors.white,
-                  onPressed: () => Navigator.pop(context),
-                ),
+                 onPressed: (){
+            Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(builder: (_) => DashboardScreen()), // الصفحة اللي فيها Sidebar
+  (route) => false, // يمسح كل الصفحات القديمة من الـ stack
+);
+  }),
                 const SizedBox(width: 10),
                 const Text(
                   "Manage Doctors",
