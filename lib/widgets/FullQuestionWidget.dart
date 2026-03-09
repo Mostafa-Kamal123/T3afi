@@ -1,10 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:t3afy/constants.dart';
 import 'package:t3afy/widgets/customResponseCard.dart';
 import 'package:t3afy/widgets/qusestionCard.dart';
 
-class Fullquestionwidget extends StatelessWidget {
+class Fullquestionwidget extends StatefulWidget {
   Fullquestionwidget({super.key, required this.question});
 final String question;
+
+  @override
+  State<Fullquestionwidget> createState() => _FullquestionwidgetState();
+}
+
+class _FullquestionwidgetState extends State<Fullquestionwidget> {
+int? selectedScore;
 
   @override
   Widget build(BuildContext context) {
@@ -13,20 +24,35 @@ final String question;
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    CustomResposeCard(child: Row(
+                    CustomResposeCard(
+                      color: selectedScore==3?KButtonsColor:Colors.white,
+                      child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Image.asset("assets/Images/high.png",width: 30,height: 40,),
-                        Text("   High      ",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                        FaIcon(FontAwesomeIcons.arrowTrendUp, color: Colors.red ),
+                        Text(" High ",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
                       ],
-                    ), ontap: (){}),
-                    CustomResposeCard(child: Row(
+                    ), ontap: (){
+                      setState(() {
+                        selectedScore=3;
+                      });
+                      sendAnswer(widget.question, 3);
+                    }),
+                    CustomResposeCard(
+                      color: selectedScore==2?KButtonsColor:Colors.white,
+                      child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Image.asset("assets/Images/moderate.png",width: 30,height: 40,),
-                        Text("  Moderate  ",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
+                        FaIcon(FontAwesomeIcons.arrowsLeftRight, color: Colors.orange),
+                        Text("   Mid  ",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
                       ],
-                    ), ontap: (){}),
+                    ), ontap: (){
+                      setState(() {
+                        selectedScore=2;
+
+                      });
+                      sendAnswer(widget.question, 2);
+                    }),
                     
                   ],
                 ),
@@ -34,24 +60,54 @@ final String question;
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    CustomResposeCard(child: Row(
+                    CustomResposeCard(
+                      color: selectedScore==1?KButtonsColor:Colors.white, 
+                      child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Image.asset("assets/Images/low.png",width: 30,height: 37,),
-                        Text("    Low ㅤ   ",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                        FaIcon(FontAwesomeIcons.arrowTrendDown, color: Colors.amber),
+                        Text(" Low ",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
                       ],
-                    ), ontap: (){}),
-                    CustomResposeCard(child: Row(
+                    ), ontap: (){
+                      setState(() {
+                        selectedScore=1;
+                      });
+                      sendAnswer(widget.question, 1);
+                    }),
+                    CustomResposeCard(
+                      color: selectedScore==0?KButtonsColor:Colors.white, 
+                      child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Image.asset("assets/Images/none.png",width: 30,height: 37,),
-                        Text("   None  ㅤㅤ",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                        FaIcon(FontAwesomeIcons.circleMinus ,color: Colors.green ),
+                        Text(" None",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
                       ],
-                    ), ontap: (){}),
+                    ), ontap: (){
+                      setState(() {
+                        selectedScore=0;
+                      });
+                      sendAnswer(widget.question, 0);
+                    }),
                     
                   ],
                 ),
               ],
-            ), question: question);
+            ), question: widget.question);
   }
+}
+
+
+
+Future<void> sendAnswer(String question, int score) async {
+
+  final uid = FirebaseAuth.instance.currentUser!.uid;
+
+  await FirebaseFirestore.instance
+      .collection("users")
+      .doc(uid)
+      .collection("checkins")
+      .doc(DateTime.now().toString().substring(0,10)) // اليوم
+      .set({
+        question: score
+      }, SetOptions(merge: true));
 }

@@ -16,11 +16,11 @@ final String question;
                     SizedBox(
                       height: 30,
                       width: 100,
-                      child: CustomResposeCard(child: Center(child: Text(" Yes ",style: TextStyle(fontSize: 18),)), ontap: (){})),
+                      child: CustomResposeCard(child: Center(child: Text(" Yes ",style: TextStyle(fontSize: 18),)), ontap: (){}, color: Colors.green,)),
                     SizedBox(
                       height: 30,
                       width: 100,
-                      child: CustomResposeCard(child: Center(child: Text(" No ",style: TextStyle(fontSize: 18),)), ontap: (){})),
+                      child: CustomResposeCard(child: Center(child: Text(" No ",style: TextStyle(fontSize: 18),)), ontap: (){}, color: Colors.red,)),
                     
                   ],
                 ),

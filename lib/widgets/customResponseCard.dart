@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
 
 class CustomResposeCard extends StatelessWidget {
-  CustomResposeCard({super.key, required this.child,required this.ontap});
+  CustomResposeCard({super.key, required this.child,required this.ontap, required this.color});
 final Widget child;
+final Color color;
 VoidCallback ontap;
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ VoidCallback ontap;
       child: Container(
               
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: color,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -23,7 +24,10 @@ VoidCallback ontap;
                   )
                   ],
               ),
-              child: child
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: child,
+              )
             ),
     );
   }

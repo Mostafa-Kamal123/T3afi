@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:t3afy/constants.dart';
 
@@ -22,8 +23,8 @@ final double? height;
     return GestureDetector(
       onTap: ontap,
       child: Container(
-     height: height,
-width: 370,
+    height: height,
+width: width,
    // استخدم القيمة اللي اتعدت
         decoration: BoxDecoration(
           color: KPrimaryColor,
