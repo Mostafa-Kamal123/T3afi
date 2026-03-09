@@ -152,7 +152,7 @@ class _AdminDoctorsPageState extends State<AdminDoctorsPage> {
                       crossAxisCount: crossAxisCount,
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 16,
-                      childAspectRatio: 2.0,
+                      childAspectRatio: 0.6,
                     ),
                     itemCount: doctors.length,
                     itemBuilder: (context, index) {
