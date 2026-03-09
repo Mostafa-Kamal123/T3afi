@@ -137,6 +137,8 @@ static String id='home page';
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Customcardwidget(
+                    height: 170,
+                    width: 170,
                     ontap: (){
                       Navigator.pushNamed(context, Dailycheckinpage.id);
                     },
@@ -151,6 +153,9 @@ static String id='home page';
                     ],
                   )),
                   Customcardwidget(
+                    height: 170
+                    ,
+                    width: 170,
                     ontap: (){
                       Navigator.pushNamed(context, ChatScreen.id);
                     },
