@@ -215,7 +215,7 @@ class _LoginpageState extends State<Loginpage> {
                                   // ← Add your admin page here when ready
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(builder: (_) => const AdminDoctorsPage()),
+                                    MaterialPageRoute(builder: (_) => DashboardScreen()),
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
