@@ -7,6 +7,7 @@ import 'package:t3afy/pages/admin_doctors_page.dart';
 import 'package:t3afy/pages/homePage.dart';
 import 'package:t3afy/pages/DoctorProfile.dart';
 import 'package:t3afy/pages/DoctorHome.dart';
+import 'package:t3afy/pages/homescreen.dart';
 import 'package:t3afy/pages/registerPage.dart';
 import 'package:t3afy/pages/register_choice.dart';
 import 'package:t3afy/services/login_logic.dart';
@@ -204,7 +205,7 @@ class _LoginpageState extends State<Loginpage> {
                                 } else if (role == "patient") {
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(builder: (_) => const Homepage()),
+                                    MaterialPageRoute(builder: (_) =>  HomeScreen()),
                                   );
                                 } else if (role == "doctor") {
                                   Navigator.pushReplacement(
