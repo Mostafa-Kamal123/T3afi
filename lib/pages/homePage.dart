@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:t3afy/constants.dart';
 import 'package:t3afy/helpers/motivation_quotes.dart';
 import 'package:t3afy/pages/chat_page.dart';
@@ -8,63 +9,26 @@ import 'package:t3afy/pages/dailyCheckInPage.dart';
 import 'package:t3afy/widgets/customCardWidget.dart';
 import 'package:t3afy/widgets/newsSection.dart';
 
-class Homepage extends StatelessWidget {
-  const Homepage({super.key});
+class Homepage extends StatefulWidget {
+  String? name;
+  Homepage({ this.name});
 static String id='home page';
+
   @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  int currentIdx=0;
+  
+  @override
+
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection("users")
-      .doc(FirebaseAuth.instance.currentUser!.uid).snapshots(),
-      builder: (context, asyncSnapshot) {
-        if(!asyncSnapshot.hasData){
-          return CircularProgressIndicator();
-        }
-        var data=asyncSnapshot.data!.data();
+    return 
       
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: KTextFieldColor,
-            elevation: 0,
-            leading: Builder(
-              builder: (context) {
-                return IconButton(onPressed: (){
-                  Scaffold.of(context).openDrawer();
-                }, 
-                icon: Icon(Icons.menu),
-                );
-              }
-            ),
-          ),
-          drawer: Drawer(
-            backgroundColor:KPrimaryColor,
-            child: ListView(
-              children: [
-                Container(
-                  height: 100,
-                  child: Center(
-                    child: Text(
-                      "Menu",
-                      style: TextStyle(color: KButtonsColor,fontSize: 24,fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                ListTile(
-                  title: Text("Logout"),
-                  onTap: (){
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: Text("Settings"),
-                  onTap: (){
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-          body: Container(
+      
+        
+          Container(
             width: double.infinity,
             decoration: BoxDecoration(
               
@@ -87,7 +51,7 @@ static String id='home page';
                   alignment: Alignment.centerLeft,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 16.0),
-                    child: Text("Hello ${data!['name']}",style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
+                    child: Text("Hello ${widget.name}",style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
                   )),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -204,17 +168,16 @@ static String id='home page';
                 Expanded(child: NewsSection())
               ],
             ),
-          )
-        );
-      }
-    );
+          );
+        
+      
+    
   }
+
 String getTodayMessage(){
   int day =DateTime.now().day;
   int index =(day-1)%MotivationalMessages.messages.length;
 
   return MotivationalMessages.messages[index];
 }
-
-
 }
