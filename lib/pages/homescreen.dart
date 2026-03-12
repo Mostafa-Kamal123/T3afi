@@ -6,6 +6,7 @@ import 'package:t3afy/constants.dart';
 import 'package:t3afy/pages/chat_page.dart';
 import 'package:t3afy/pages/dailyCheckInPage.dart';
 import 'package:t3afy/pages/homePage.dart';
+import 'package:t3afy/pages/progress_page.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -46,11 +47,11 @@ void initState() {
         var data=asyncSnapshot.data!.data();
       final List pages=[
   Homepage(name: data!['name'],),
-  Dailycheckinpage(),
-  ChatScreen()
+  ChatScreen(),
+  ProgressPage()
   
 ];
-print(data['name']);
+
         return Scaffold(
           appBar: AppBar(
             backgroundColor: KTextFieldColor,

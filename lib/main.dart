@@ -12,6 +12,7 @@ import 'package:t3afy/pages/homePage.dart';
 import 'package:t3afy/pages/homescreen.dart';
 import 'package:t3afy/pages/loginPage.dart';
 import 'package:t3afy/pages/onboardingScreens.dart';
+import 'package:t3afy/pages/progress_page.dart';
 import 'package:t3afy/pages/registerPage.dart';
 
 void main() async {
@@ -41,7 +42,7 @@ void initState(){
       routes: {
         Loginpage.id:(context)=>Loginpage(),
         Registerpage.id:(context)=>Registerpage(),
-
+        ProgressPage.id:(context)=>ProgressPage(),
         HomeScreen.id:(context)=>HomeScreen(),
         Dailycheckinpage.id:(context)=>Dailycheckinpage(),
         Aicheckpage.id:(context)=>Aicheckpage(),
