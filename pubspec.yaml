@@ -42,9 +42,10 @@ dependencies:
   firebase_core: ^4.4.0
   cloud_firestore: ^6.1.2
   firebase_auth: ^6.1.4
-  fl_chart: ^0.68.0
+  fl_chart: ^1.1.1
   collection: ^1.19.1
   font_awesome_flutter: ^11.0.0
+  percent_indicator: ^4.2.5
 
 dev_dependencies:
   flutter_test:
