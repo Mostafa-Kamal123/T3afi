@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:t3afy/constants.dart';
+import 'package:t3afy/widgets/card_in_progress.dart';
 import 'package:t3afy/widgets/recovery_score_indecator.dart';
 
 class ProgressPage extends StatefulWidget {
@@ -39,16 +41,31 @@ print(data);
     return Scaffold(
       backgroundColor: KPrimaryColor,
       body: 
-        Column(
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(
+            
+            children: [
+              Center(child: Text("Daily Recovery Score",style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),)),
+              SizedBox(height: 20,),
+              Center(
           
-          children: [
-            Text("Daily Recovery Score",style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
-            SizedBox(height: 20,),
-            Center(
-
-              child: RecoveryScoreIndicator(score: recoveryScore),
-            )
-          ],
+                child: RecoveryScoreIndicator(score: recoveryScore),
+              ),
+              SizedBox(height: 10,),
+              ProgressCard(icon: FaIcon(FontAwesomeIcons.faceLaugh),title: "Feelings",subtitle: "View mood insights",),
+              SizedBox(height: 10,),
+              ProgressCard(icon: FaIcon(FontAwesomeIcons.fire), title: "Craving ", subtitle: "Triggers & craving chart"),
+              SizedBox(height: 10,),
+              ProgressCard(icon: FaIcon(FontAwesomeIcons.moon), title: "Sleep", subtitle: "Sleep pattern"),
+              SizedBox(height: 10,),
+              ProgressCard(icon: FaIcon(FontAwesomeIcons.faceGrimace), title: "Stress", subtitle: "Stress level insights"),
+              SizedBox(height: 10,),
+              ProgressCard(icon: FaIcon(FontAwesomeIcons.personRunning), title: "Physical Activity", subtitle: "Activity progress"),
+              SizedBox(height: 10,),
+              ProgressCard(icon: FaIcon(FontAwesomeIcons.peopleGroup), title: "Social Interaction", subtitle: "Connection trend"),
+            ],
+          ),
         ),
       
     );

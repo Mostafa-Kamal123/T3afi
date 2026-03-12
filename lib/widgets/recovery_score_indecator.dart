@@ -9,6 +9,7 @@ class RecoveryScoreIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CircularPercentIndicator(
+      
       radius: 100,
       lineWidth: 14,
       percent: score,
