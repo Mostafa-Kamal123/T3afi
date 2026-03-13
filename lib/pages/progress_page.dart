@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:t3afy/constants.dart';
+import 'package:t3afy/pages/feelings_insights_page.dart';
 import 'package:t3afy/widgets/card_in_progress.dart';
 import 'package:t3afy/widgets/multi_line_charts.dart';
 import 'package:t3afy/widgets/recovery_score_indecator.dart';
@@ -55,28 +56,29 @@ print(data);
               SizedBox(height: 10,),
               Row(
                 children: [
-                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.faceLaugh,color: Colors.green,),title: "Feelings",subtitle: "View mood insights",onTap: (),)),
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.faceLaugh,color: Colors.green,),title: "Feelings",subtitle: "View mood insights",onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>FeelingsInsightsPage(name: 'Feelings')));
+                  },)),
                   
-                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.fire,color: Colors.red,), title: "Craving ", subtitle: "Craving chart",onTap: ())),
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.fire,color: Colors.red,), title: "Craving ", subtitle: "Craving chart",onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>FeelingsInsightsPage(name: 'Craving')));
+                  })),
                 ],
               ),
               SizedBox(height: 10,),
               Row(
                 children: [
-                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.moon,color: Colors.blue,), title: "Sleep", subtitle: "Sleep pattern",onTap: ())),
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.moon,color: Colors.blue,), title: "Sleep", subtitle: "Sleep pattern",onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>FeelingsInsightsPage(name: 'Sleep')));
+                  })),
                               
-                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.faceGrimace,color: Colors.orange,), title: "Stress", subtitle: "Stress insights",onTap: ())),
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.faceGrimace,color: Colors.orange,), title: "Stress", subtitle: "Stress insights",onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>FeelingsInsightsPage(name: 'Stress')));
+                  })),
                 ],
               ),
               SizedBox(height: 10,),
-              Row(
-                children: [
-                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.personRunning,color: Colors.indigoAccent,), title: "Physical Activity", subtitle: "Activity progress",onTap: ())),
-                  
-                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.peopleGroup,color: Colors.purpleAccent,), title: "Social Interaction", subtitle: "Connection trend",onTap: ())),
-                ],
-              ),
-              SizedBox(height: 10,),
+              
               Expanded(child: MultiLineCharts())
             ],
           ),

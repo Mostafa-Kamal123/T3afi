@@ -3,11 +3,12 @@ import 'package:t3afy/constants.dart';
 import 'package:t3afy/pages/feelings_insights_page.dart';
 
 class ProgressCard extends StatelessWidget {
-  ProgressCard({super.key, required this.icon, required this.title, required this.subtitle, required this.onTap});
+  ProgressCard({super.key, required this.icon,this.isTap=true, required this.title, required this.subtitle, required this.onTap});
 final Icon icon;
 final String title;
 final String subtitle;
-final()  onTap;
+final VoidCallback?  onTap;
+bool isTap;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -17,15 +18,8 @@ final()  onTap;
     leading: icon,
     title: Text(title,style: TextStyle(fontSize: 13),),
     subtitle: Text(subtitle,style: TextStyle(fontSize: 11),),
-    trailing: Icon(Icons.arrow_forward_ios,size: 15,),
-    onTap: (){
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => FeelingsInsightsPage(),
-        ),
-      );
-    },
+    trailing:isTap? Icon(Icons.arrow_forward_ios,size: 15,):Text(""),
+    onTap: isTap?onTap:(){},
   ),
 );
   }
