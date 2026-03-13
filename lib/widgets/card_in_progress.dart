@@ -12,9 +12,9 @@ final()  onTap;
     return Card(
   child: ListTile(
     leading: icon,
-    title: Text(title),
-    subtitle: Text(subtitle),
-    trailing: Icon(Icons.arrow_forward_ios),
+    title: Text(title,style: TextStyle(fontSize: 13),),
+    subtitle: Text(subtitle,style: TextStyle(fontSize: 11),),
+    trailing: Icon(Icons.arrow_forward_ios,size: 15,),
     onTap: (){
       Navigator.push(
         context,

@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:t3afy/constants.dart';
 import 'package:t3afy/widgets/card_in_progress.dart';
+import 'package:t3afy/widgets/multi_line_charts.dart';
 import 'package:t3afy/widgets/recovery_score_indecator.dart';
 
 class ProgressPage extends StatefulWidget {
@@ -53,17 +54,30 @@ print(data);
                 child: RecoveryScoreIndicator(score: recoveryScore),
               ),
               SizedBox(height: 10,),
-              ProgressCard(icon: FaIcon(FontAwesomeIcons.faceLaugh),title: "Feelings",subtitle: "View mood insights",),
+              Row(
+                children: [
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.faceLaugh,color: Colors.green,),title: "Feelings",subtitle: "View mood insights",onTap: (),)),
+                  
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.fire,color: Colors.red,), title: "Craving ", subtitle: "Craving chart",onTap: ())),
+                ],
+              ),
               SizedBox(height: 10,),
-              ProgressCard(icon: FaIcon(FontAwesomeIcons.fire), title: "Craving ", subtitle: "Triggers & craving chart"),
+              Row(
+                children: [
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.moon,color: Colors.blue,), title: "Sleep", subtitle: "Sleep pattern",onTap: ())),
+                              
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.faceGrimace,color: Colors.orange,), title: "Stress", subtitle: "Stress insights",onTap: ())),
+                ],
+              ),
               SizedBox(height: 10,),
-              ProgressCard(icon: FaIcon(FontAwesomeIcons.moon), title: "Sleep", subtitle: "Sleep pattern"),
-              SizedBox(height: 10,),
-              ProgressCard(icon: FaIcon(FontAwesomeIcons.faceGrimace), title: "Stress", subtitle: "Stress level insights"),
-              SizedBox(height: 10,),
-              ProgressCard(icon: FaIcon(FontAwesomeIcons.personRunning), title: "Physical Activity", subtitle: "Activity progress"),
-              SizedBox(height: 10,),
-              ProgressCard(icon: FaIcon(FontAwesomeIcons.peopleGroup), title: "Social Interaction", subtitle: "Connection trend"),
+              Row(
+                children: [
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.personRunning,color: Colors.indigoAccent,), title: "Physical Activity", subtitle: "Activity progress",onTap: ())),
+                  
+                  Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.peopleGroup,color: Colors.purpleAccent,), title: "Social Interaction", subtitle: "Connection trend",onTap: ())),
+                ],
+              ),
+              Expanded(child: MultiLineCharts())
             ],
           ),
         ),
@@ -86,11 +100,11 @@ double calculateRecoveryScore(Map<String,dynamic> data){
     num total =0;
     total+=data['Feelings']??0;
     
-    total+=(3-data['Craving intensity?'])??0;
-    total+=data['How much physical activity did you do today?']??0;
-    total +=(3-data['How stressed do you feel today?'])??0;
-    total+=data['How was your sleep quality today?']??0;
-    total+=data['How? much did you interact with others today?']??0;
+    total+=(3-data['Craving'])??0;
+    total+=data['Physical activity']??0;
+    total +=(3-data['Stress'])??0;
+    total+=data['Sleep']??0;
+    total+=data['Interact connection']??0;
   return total /19;
   }
   

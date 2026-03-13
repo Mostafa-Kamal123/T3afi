@@ -76,11 +76,11 @@ void initState() {
                 items: [
                   BottomNavigationBarItem(
                     
-                    icon: FaIcon(FontAwesomeIcons.home),
+                    icon: FaIcon(FontAwesomeIcons.houseChimney),
                     label: "Home",
                     ),
                     BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.person),
+                    icon: FaIcon(FontAwesomeIcons.circleUser),
                     label: "Profile",
                     ),
                     BottomNavigationBarItem(

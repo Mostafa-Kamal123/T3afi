@@ -145,11 +145,11 @@ void initState() {
                   ),
                   ],
                 ), question: "How are you feeling?"),
-                Fullquestionwidget(question: "Craving intensity?"),
-                Fullquestionwidget(question: "How was your sleep quality today?"),
-                Fullquestionwidget(question: "How stressed do you feel today?"),
-                Fullquestionwidget(question: "How much physical activity did you do today?"),
-                Fullquestionwidget(question: "How? much did you interact with others today?"),
+                Fullquestionwidget(question: "Craving intensity?",fieldName: "Craving",),
+                Fullquestionwidget(question: "How was your sleep quality today?",fieldName: "Sleep",),
+                Fullquestionwidget(question: "How stressed do you feel today?",fieldName: "Stress",),
+                Fullquestionwidget(question: "How much physical activity did you do today?",fieldName: "Physical activity",),
+                Fullquestionwidget(question: "How? much did you interact with others today?",fieldName: "Interact connection",),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: CustomButtonWidget(text: "Save", onTap: (){
@@ -195,6 +195,7 @@ Future<void> sendAnswer( int score) async {
       .collection("checkins")
       .doc(DateTime.now().toString().substring(0,10)) // اليوم
       .set({
+        'date':Timestamp.now(),
         "Feelings": score
       }, SetOptions(merge: true));
 }
