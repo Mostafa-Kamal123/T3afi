@@ -47,7 +47,6 @@ print(data);
           child: ListView(
             
             children: [
-              Center(child: Text("Daily Recovery Score",style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),)),
               SizedBox(height: 20,),
               Center(
           
@@ -77,6 +76,7 @@ print(data);
                   Expanded(child: ProgressCard(icon: FaIcon(FontAwesomeIcons.peopleGroup,color: Colors.purpleAccent,), title: "Social Interaction", subtitle: "Connection trend",onTap: ())),
                 ],
               ),
+              SizedBox(height: 10,),
               Expanded(child: MultiLineCharts())
             ],
           ),
