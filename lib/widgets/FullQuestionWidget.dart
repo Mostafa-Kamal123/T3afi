@@ -7,8 +7,9 @@ import 'package:t3afy/widgets/customResponseCard.dart';
 import 'package:t3afy/widgets/qusestionCard.dart';
 
 class Fullquestionwidget extends StatefulWidget {
-  Fullquestionwidget({super.key, required this.question});
+  Fullquestionwidget({super.key, required this.question, required this.fieldName});
 final String question;
+final String fieldName;
 
   @override
   State<Fullquestionwidget> createState() => _FullquestionwidgetState();
@@ -36,7 +37,7 @@ int? selectedScore;
                       setState(() {
                         selectedScore=3;
                       });
-                      sendAnswer(widget.question, 3);
+                      sendAnswer(widget.fieldName, 3);
                     }),
                     CustomResposeCard(
                       color: selectedScore==2?KButtonsColor:Colors.white,
@@ -51,7 +52,7 @@ int? selectedScore;
                         selectedScore=2;
 
                       });
-                      sendAnswer(widget.question, 2);
+                      sendAnswer(widget.fieldName, 2);
                     }),
                     
                   ],
@@ -72,7 +73,7 @@ int? selectedScore;
                       setState(() {
                         selectedScore=1;
                       });
-                      sendAnswer(widget.question, 1);
+                      sendAnswer(widget.fieldName, 1);
                     }),
                     CustomResposeCard(
                       color: selectedScore==0?KButtonsColor:Colors.white, 
@@ -86,7 +87,7 @@ int? selectedScore;
                       setState(() {
                         selectedScore=0;
                       });
-                      sendAnswer(widget.question, 0);
+                      sendAnswer(widget.fieldName, 0);
                     }),
                     
                   ],
@@ -108,6 +109,7 @@ Future<void> sendAnswer(String question, int score) async {
       .collection("checkins")
       .doc(DateTime.now().toString().substring(0,10)) // اليوم
       .set({
+        'date':Timestamp.now(),
         question: score
       }, SetOptions(merge: true));
 }
