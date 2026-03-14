@@ -11,7 +11,7 @@ class DashboardAppBar extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20),
       height: 70,
       decoration: BoxDecoration(
-        color: KTextFieldColor2,
+        color: KTextFieldColor,
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 8)
         ]
