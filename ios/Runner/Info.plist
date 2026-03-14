@@ -55,6 +55,10 @@
 			<string>sms</string>
 			<string>mailto</string>
 		</array>
+		<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to your photo library to pick images for your profile/posts.</string>
+<key>NSCameraUsageDescription</key>
+<string>We need access to your camera to take photos for your profile/posts.</string>
 
 		<key>NSAppTransportSecurity</key>
 		<dict>

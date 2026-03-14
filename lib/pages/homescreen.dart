@@ -6,6 +6,7 @@ import 'package:t3afy/constants.dart';
 import 'package:t3afy/pages/chat_page.dart';
 import 'package:t3afy/pages/dailyCheckInPage.dart';
 import 'package:t3afy/pages/homePage.dart';
+import 'package:t3afy/pages/patient_profile.dart';
 import 'package:t3afy/pages/progress_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -47,8 +48,9 @@ void initState() {
         var data=asyncSnapshot.data!.data();
       final List pages=[
   Homepage(name: data!['name'],),
-  ChatScreen(),
-  ProgressPage()
+  ProgressPage(),
+  PatientProfile(),
+  
   
 ];
 
@@ -67,6 +69,7 @@ void initState() {
                 ),
           ),
           bottomNavigationBar: BottomNavigationBar(
+            
                 currentIndex: currentIdx,
                 onTap: (value) {
                   setState(() {
@@ -80,13 +83,14 @@ void initState() {
                     label: "Home",
                     ),
                     BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.circleUser),
-                    label: "Profile",
-                    ),
-                    BottomNavigationBarItem(
                     icon: FaIcon(FontAwesomeIcons.barsProgress),
                     label: "Progress",
                     ),
+                    BottomNavigationBarItem(
+                    icon: FaIcon(FontAwesomeIcons.circleUser),
+                    label: "Profile",
+                    ),
+                    
         
                 ]),
         
