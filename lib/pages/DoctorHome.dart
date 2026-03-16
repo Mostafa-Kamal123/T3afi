@@ -3,6 +3,7 @@ import 'package:t3afy/constants.dart';
 import 'package:t3afy/firebase_options.dart';
 import 'package:t3afy/pages/DoctorProfile.dart';
 import 'package:t3afy/pages/DoctorPatientsPage.dart';
+import 'package:t3afy/pages/communityScreen.dart';
 import 'package:t3afy/pages/patient_logic.dart';
 import 'package:t3afy/services/login_logic.dart';
 import 'package:t3afy/widgets/customCardWidget.dart';
@@ -238,16 +239,25 @@ class _DoctorhomeState extends State<Doctorhome> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: KButtonsColor,
-        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Community'),
-        ],
-        onTap: (index) => print("Tapped index: $index"),
-      ),
+   bottomNavigationBar: BottomNavigationBar(
+  currentIndex: 0,
+  selectedItemColor: KButtonsColor,
+  unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+  items: [
+    BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+    BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Community'),
+  ],
+  onTap: (index) {
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CommunityScreen(     currentUserId: FirebaseAuth.instance.currentUser!.uid,),
+        ),
+      );
+    }
+  },
+),
     );
   }
 }
